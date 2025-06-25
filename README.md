@@ -1,53 +1,65 @@
-# URL Shortener Frontend
+# URL Shortener
 
-This project is a simple URL shortener web application that allows users to input a long URL and generate a shortened version. The generated URLs will automatically expire after 6 months.
+A simple, self-hosted URL shortener built with [Flask](https://flask.palletsprojects.com/), using SQLite for storage and supporting HTTPS via TLS certificates.
 
 ## Features
 
-- Input field for entering the long URL
-- Button to generate the short URL
-- Display area for the generated short URL
-- Notification about the expiration of generated URLs
+- Shorten long URLs to simple codes (e.g., `https://yourdomain/get/abc123`)
+- All data stored locally in a lightweight SQLite database
+- HTTPS support with configurable TLS certificates
+- Expiry policy: Links are automatically deleted after 6 months of inactivity (planned, not yet implemented)
 
-## Project Structure
+## Requirements
+
+- Python 3.8+
+- [pip](https://pip.pypa.io/en/stable/)
+- TLS certificate and key files (`cert.pem`, `key.pem`)
+
+All Python dependencies are listed in [`requirements.txt`](requirements.txt):
+
+## Configuration
+
+Configuration is managed via a `.env` file in the project root. Example:
+- `DB_FILE`: Path to the SQLite database file.
+- `SERVER_PORT`: Port to run the server on.
+- `TLS_CERT_FILE`: Path to your TLS certificate file. (optional)
+- `TLS_KEY_FILE`: Path to your TLS private key file. (optional)
+- `ADDRESS_RESOLUTION`: Host/IP to bind the server (e.g., `127.0.0.1` for local, `0.0.0.0` for all interfaces).
+
+## TLS Configuration
+
+To enable HTTPS, you must provide valid TLS certificate and key files (`cert.pem`, `key.pem`). You can generate self-signed certificates for testing: Update your `.env` to point to these files.
+
+### Template to create TLS keys and certs
 
 ```
-url-shortener-frontend
-├── src
-│   ├── index.html        # Main HTML document
-│   ├── styles
-│   │   └── main.css      # CSS styles for the website
-│   ├── scripts
-│   │   └── app.js        # JavaScript functionality for URL shortening
-│   └── assets
-│       └── favicon.ico    # Favicon for the website
-├── package.json          # NPM configuration file
-└── README.md             # Project documentation
+openssl req -x509 -sha256 -nodes -newkey rsa:<key_length> -days <nr> -CA <CA_cert_file> -CAkey <CA_key_file> -keyout <server_key_file> -out <server_cert_file> -subj "/C=XX/ST=Y/O=Z/CN=<dns_name>" -addext "basicConstraints=critical,CA:FALSE" -addext "subjectAltName = DNS:<dns_name>"
 ```
 
-## Getting Started
-
-To run this project locally, follow these steps:
-
-1. Clone the repository:
-   ```
-   git clone <repository-url>
-   ```
-
-2. Navigate to the project directory:
-   ```
-   cd url-shortener-frontend
-   ```
-
-3. Open the `src/index.html` file in your web browser to view the application.
+CA and Cakey are optional
 
 ## Usage
 
-1. Enter the long URL in the input field.
-2. Click the "Generate Short URL" button.
-3. The shortened URL will be displayed below the button.
-4. Please note that the generated URLs will be removed automatically in 6 months.
+1. Install dependencies:
 
-## License
+    ```
+    pip install -r requirements.txt
+    ```
 
-This project is open-source and available under the [MIT License](LICENSE).
+2. Create and configure your `.env` file as shown above.
+
+3. Run the application:
+
+    ```
+    python3 app.py
+    ```
+
+4. Open your browser and navigate to `https://localhost:8080` (or your configured address/port).
+
+## Database
+
+This project uses SQLite for simplicity. The database file is created automatically (see `DB_FILE` in `.env`). The schema is initialized on first run.
+
+## Showcase
+![](assets/1.png)
+![](assets/2.png)
