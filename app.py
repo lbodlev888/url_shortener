@@ -2,13 +2,19 @@ from flask import Flask, make_response, redirect, request, render_template
 import sqlite3
 from dotenv import load_dotenv
 import os
-import base64
-from hashlib import shake_256
+import secrets
+import string
+
+def random_code(length: int) -> str:
+    random_string = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(length))
+    return random_string
 
 load_dotenv()
 DB_FILE = os.getenv("DB_FILE")
 SERVER_PORT = os.getenv("SERVER_PORT")
-FORWARD_DOMAIN = os.getenv("FORWARD_DOMAIN")
+TLS_CERT = os.getenv("TLS_CERT_FILE")
+TLS_KEY = os.getenv("TLS_KEY_FILE")
+ADDRESS_RESOLUTION = os.getenv("ADDRESS_RESOLUTION")
 
 init_sql = """
 CREATE TABLE IF NOT EXISTS shorts (
@@ -40,12 +46,14 @@ def getLink(link):
 @app.route('/newlink', methods=["POST"])
 def addLink():
     link = request.json['url']
-    path = base64.b64encode(shake_256(link.encode()).digest(5)).decode()
-    # path = shake_256(link["url"]).digest(3).decode()
+    path = random_code(6)
     sqlcon = sqlite3.connect(DB_FILE)
     sqlcon.execute("INSERT INTO shorts (path, link) VALUES (?, ?)", (path, link))
     sqlcon.commit()
     sqlcon.close()
-    return make_response({'status': 'success', 'shortUrl': FORWARD_DOMAIN+path}, 200)
+    return make_response({'status': 'success', 'shortUrl': path}, 200)
 
-app.run(port=int(SERVER_PORT))
+try:
+    app.run(ssl_context=(TLS_CERT, TLS_KEY), host=ADDRESS_RESOLUTION, port=int(SERVER_PORT))
+except:
+    print('TLS data missing')
