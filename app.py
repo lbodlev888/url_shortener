@@ -33,7 +33,7 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/get/<link>')
+@app.route('/g/<link>')
 def getLink(link):
     sqlcon = sqlite3.connect(DB_FILE)
     cursor = sqlcon.cursor()
@@ -45,11 +45,17 @@ def getLink(link):
 
 @app.route('/newlink', methods=["POST"])
 def addLink():
-    link = request.json['url']
-    path = random_code(6)
     sqlcon = sqlite3.connect(DB_FILE)
-    sqlcon.execute("INSERT INTO shorts (path, link) VALUES (?, ?)", (path, link))
-    sqlcon.commit()
+    link = str(request.json['url'])
+    cursor = sqlcon.cursor()
+    cursor.execute('SELECT path FROM shorts WHERE link = ?', (link, ))
+    path = cursor.fetchone()
+    if path is None:
+        path = random_code(6)
+        sqlcon.execute('INSERT INTO shorts (path, link) VALUES (?, ?)', (path, link))
+        sqlcon.commit()
+    else: path = path[0]
+    cursor.close()
     sqlcon.close()
     return make_response({'status': 'success', 'shortUrl': path}, 200)
 
