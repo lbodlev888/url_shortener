@@ -1,4 +1,4 @@
-from flask import Flask, make_response, redirect, request, render_template
+from flask import Flask, make_response, redirect, request, render_template, abort
 import sqlite3
 from dotenv import load_dotenv
 import os
@@ -8,6 +8,15 @@ import string
 def random_code(length: int) -> str:
     random_string = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(length))
     return random_string
+
+def get_safe_random_code(cursor: sqlite3.Cursor, length: int) -> str:
+    data = []
+    while data is not None:
+        print('was here')
+        code = random_code(length)
+        cursor.execute('SELECT id FROM shorts WHERE path = ?', (code, ))
+        data = cursor.fetchone()
+    return code
 
 load_dotenv()
 DB_FILE = os.getenv("DB_FILE")
@@ -33,23 +42,31 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
-@app.route('/get/<link>')
+@app.route('/g/<link>')
 def getLink(link):
     sqlcon = sqlite3.connect(DB_FILE)
     cursor = sqlcon.cursor()
     cursor.execute("SELECT link FROM shorts WHERE path=?", (link,))
     data = cursor.fetchone()
+    if data is None:
+        return abort(404) # TODO Implement a 404 html page
     cursor.close()
     sqlcon.close()
     return redirect(data[0], code=302)
 
 @app.route('/newlink', methods=["POST"])
 def addLink():
-    link = request.json['url']
-    path = random_code(6)
     sqlcon = sqlite3.connect(DB_FILE)
-    sqlcon.execute("INSERT INTO shorts (path, link) VALUES (?, ?)", (path, link))
-    sqlcon.commit()
+    link = str(request.json['url'])
+    cursor = sqlcon.cursor()
+    cursor.execute('SELECT path FROM shorts WHERE link = ?', (link, ))
+    path = cursor.fetchone()
+    if path is None:
+        path = get_safe_random_code(cursor, 6)
+        sqlcon.execute('INSERT INTO shorts (path, link) VALUES (?, ?)', (path, link))
+        sqlcon.commit()
+    else: path = path[0]
+    cursor.close()
     sqlcon.close()
     return make_response({'status': 'success', 'shortUrl': path}, 200)
 

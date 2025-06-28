@@ -11,7 +11,7 @@ function generateShortUrl() {
     .then(data => {
         if (data.status) {
             const shortUrlText = data.shortUrl; // Assuming the backend returns a hash
-            shortUrl.textContent = `${window.location.origin}/get/${shortUrlText}`;
+            shortUrl.textContent = `${window.location.origin}/g/${shortUrlText}`;
             resultContainer.classList.remove('hidden');
         } else {
             alert('Error generating short URL. Please try again.');
