@@ -12,7 +12,6 @@ def random_code(length: int) -> str:
 def get_safe_random_code(cursor: sqlite3.Cursor, length: int) -> str:
     data = []
     while data is not None:
-        print('was here')
         code = random_code(length)
         cursor.execute('SELECT id FROM shorts WHERE path = ?', (code, ))
         data = cursor.fetchone()
@@ -38,6 +37,10 @@ sqlcon.execute(init_sql)
 
 app = Flask(__name__)
 
+@app.errorhandler(404)
+def pagenotfound(error):
+    return render_template('wrong.html', code="404", message="Not Found", details="The following link maybe be broken"), 404
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -49,13 +52,17 @@ def getLink(link):
     cursor.execute("SELECT link FROM shorts WHERE path=?", (link,))
     data = cursor.fetchone()
     if data is None:
-        return abort(404) # TODO Implement a 404 html page
+        return pagenotfound(404)
     cursor.close()
     sqlcon.close()
     return redirect(data[0], code=302)
 
 @app.route('/newlink', methods=["POST"])
 def addLink():
+    if 'url' not in request.json:
+        return make_response({'status': 'failed', 'message': 'URL is NULL'}, 500)
+    if not request.json['url']:
+        return make_response({'status': 'failed', 'message': 'URL is empty'}, 500)
     sqlcon = sqlite3.connect(DB_FILE)
     link = str(request.json['url'])
     cursor = sqlcon.cursor()

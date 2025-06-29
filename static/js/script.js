@@ -9,12 +9,12 @@ function generateShortUrl() {
         body: JSON.stringify({ url: urlInput.value })
     }).then(response => response.json())
     .then(data => {
-        if (data.status) {
-            const shortUrlText = data.shortUrl; // Assuming the backend returns a hash
+        if (data.status && data.status == 'success') {
+            const shortUrlText = data.shortUrl;
             shortUrl.textContent = `${window.location.origin}/g/${shortUrlText}`;
             resultContainer.classList.remove('hidden');
         } else {
-            alert('Error generating short URL. Please try again.');
+            alert('Error generating short URL. Message: ' + data.message);
         }
     })
     .catch(error => {
