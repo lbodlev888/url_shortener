@@ -59,9 +59,7 @@ def getLink(link):
 
 @app.route('/newlink', methods=["POST"])
 def addLink():
-    if 'url' not in request.json:
-        return make_response({'status': 'failed', 'message': 'URL is NULL'}, 500)
-    if not request.json['url']:
+    if 'url' not in request.json or not request.json['url']:
         return make_response({'status': 'failed', 'message': 'URL is empty'}, 500)
     sqlcon = sqlite3.connect(DB_FILE)
     link = str(request.json['url'])
