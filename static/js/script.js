@@ -11,7 +11,7 @@ function generateShortUrl() {
     .then(data => {
         if (data.status && data.status == 'success') {
             const shortUrlText = data.shortUrl;
-            shortUrl.textContent = `${window.location.origin}/g/${shortUrlText}`;
+            shortUrl.textContent = `${window.location.origin}/${shortUrlText}`;
             resultContainer.classList.remove('hidden');
         } else {
             alert('Error generating short URL. Message: ' + data.message);
@@ -29,20 +29,19 @@ function copyToClipboard() {
     const notification = document.getElementById('copyNotification');
     notification.classList.remove('hidden');
 
-    // Re-trigger animation
     notification.classList.remove('animate-fade-in-out');
-    void notification.offsetWidth; // Trigger reflow
+    void notification.offsetWidth;
     notification.classList.add('animate-fade-in-out');
 
-    // Hide after animation
     setTimeout(() => {
         notification.classList.add('hidden');
     }, 2000);
     });
 }
+
 function toggleDropdown() {
-      document.getElementById('themeDropdown').classList.toggle('hidden');
-    }
+    document.getElementById('themeDropdown').classList.toggle('hidden');
+}
 
 function setTheme(mode) {
     const html = document.documentElement;

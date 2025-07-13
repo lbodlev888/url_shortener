@@ -45,7 +45,7 @@ def pagenotfound(error):
 def index():
     return render_template('index.html')
 
-@app.route('/g/<link>')
+@app.route('/<link>')
 def getLink(link):
     sqlcon = sqlite3.connect(DB_FILE)
     cursor = sqlcon.cursor()
