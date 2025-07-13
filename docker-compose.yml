@@ -1,0 +1,6 @@
+services:
+  app:
+    build: .
+    ports:
+      - "80:8001"
+    container_name: url_shortener
