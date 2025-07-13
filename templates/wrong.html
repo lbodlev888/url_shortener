@@ -1,19 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition-colors">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ code + " - " + message }}</title>
+  <title>404 - Not Found</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen flex items-center justify-center p-6">
-  <div class="bg-white shadow-2xl rounded-2xl p-10 max-w-md w-full text-center">
-    <h1 class="text-6xl font-bold text-blue-600 mb-4">{{ code }}</h1>
-    <h2 class="text-2xl font-semibold mb-2">{{ message }}</h2>
-    <p class="text-gray-600 mb-6">{{ details }}<br></p>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center p-6 relative">
+  <div class="absolute top-4 right-4">
+    {% include "partials/theme_dropdown.html" %}
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-10 max-w-md w-full text-center">
+    <h1 class="text-6xl font-bold text-blue-600 dark:text-blue-400 mb-4">404</h1>
+    <h2 class="text-2xl font-semibold mb-2">Page Not Found</h2>
+    <p class="text-gray-600 dark:text-gray-300 mb-6">
+      The link you followed may be broken or expired.<br>Your shortened links are deleted after 6 months of inactivity.
+    </p>
     <a href="/" class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
       Go Back Home
     </a>
   </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

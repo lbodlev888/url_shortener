@@ -1,0 +1,18 @@
+<div class="relative inline-block text-left">
+    <button onclick="toggleDropdown()" class="bg-gray-200 dark:bg-gray-800 px-4 py-2 text-sm font-medium rounded-lg shadow hover:bg-gray-300 dark:hover:bg-gray-700">
+    <span id="theme-icon">☀️</span>
+    </button>
+    <div id="themeDropdown" class="hidden absolute right-0 mt-2 w-48 rounded-lg shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+    <div class="py-1">
+        <button onclick="setTheme('light')" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
+        ☀️ Light theme
+        </button>
+        <button onclick="setTheme('dark')" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
+        🌙 Dark theme
+        </button>
+        <button onclick="setTheme('system')" class="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
+        ⚙️ Device default
+        </button>
+    </div>
+    </div>
+</div>

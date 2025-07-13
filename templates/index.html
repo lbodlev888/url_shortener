@@ -1,17 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition-colors">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>URL Shortener</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
   <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen flex items-center justify-center p-4 relative">
-  <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-lg w-full space-y-6">
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center p-4 relative">
+  <div class="absolute top-4 right-4">
+    {% include "partials/theme_dropdown.html" %}
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 max-w-lg w-full space-y-6">
     <h1 class="text-3xl font-bold text-center">URL Shortener</h1>
-    <p class="text-sm text-center text-gray-600">
+    <p class="text-sm text-center text-gray-600 dark:text-gray-300">
       Note: Your shortened links will be <span class="font-semibold">automatically deleted</span> after 6 months of no access.
     </p>
     <div class="space-y-4">
@@ -19,19 +28,25 @@
         id="urlInput"
         type="url"
         placeholder="Enter your URL here..."
-        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        required/>
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
+        required
+      />
       <button
         onclick="generateShortUrl()"
-        class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition">
+        class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+      >
         Generate Short URL
       </button>
       <div id="resultContainer" class="hidden relative">
-        <p class="text-sm text-gray-600 mb-1">Your shortened URL:</p>
-        <div class="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 flex items-center justify-between">
-          <span id="shortUrl" class="text-blue-600 break-all"></span>
+        <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Your shortened URL:</p>
+        <div class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 flex items-center justify-between">
+          <span id="shortUrl" class="text-blue-600 dark:text-blue-400 break-all"></span>
           <button
-            onclick="copyToClipboard()" class="ml-2 text-sm text-blue-500 hover:underline">Copy</button>
+            onclick="copyToClipboard()"
+            class="ml-2 text-sm text-blue-500 dark:text-blue-400 hover:underline"
+          >
+            Copy
+          </button>
         </div>
         <!-- Floating notification near copy button -->
         <div id="copyNotification" class="hidden absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in-out">
@@ -41,6 +56,17 @@
     </div>
   </div>
 
+  <style>
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(10px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(10px); }
+    }
+    .animate-fade-in-out {
+      animation: fadeInOut 2s ease-in-out;
+    }
+  </style>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
