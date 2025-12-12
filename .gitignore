@@ -1,4 +1,4 @@
 .venv
 database.db
 .env
-*.pem
+*.db
