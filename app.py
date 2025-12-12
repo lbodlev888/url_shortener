@@ -1,9 +1,10 @@
-from flask import Flask, make_response, redirect, request, render_template, abort
+from flask import Flask, make_response, redirect, request, render_template
 import sqlite3
 from dotenv import load_dotenv
 import os
 import secrets
 import string
+import redis
 
 def random_code(length: int) -> str:
     random_string = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(length))
@@ -11,18 +12,23 @@ def random_code(length: int) -> str:
 
 def get_safe_random_code(cursor: sqlite3.Cursor, length: int) -> str:
     data = []
+    code = ''
     while data is not None:
         code = random_code(length)
         cursor.execute('SELECT id FROM shorts WHERE path = ?', (code, ))
         data = cursor.fetchone()
+    if code == '':
+        raise ValueError('generated empty string')
     return code
 
 load_dotenv()
-DB_FILE = os.getenv("DB_FILE")
-SERVER_PORT = os.getenv("SERVER_PORT")
-TLS_CERT = os.getenv("TLS_CERT_FILE")
-TLS_KEY = os.getenv("TLS_KEY_FILE")
-ADDRESS_RESOLUTION = os.getenv("ADDRESS_RESOLUTION")
+DB_FILE = str(os.getenv("DB_FILE"))
+SERVER_PORT = int(str(os.getenv("SERVER_PORT")))
+ADDRESS_RESOLUTION = str(os.getenv("ADDRESS_RESOLUTION"))
+REDIS_ADDRESS = str(os.getenv('REDIS_SERVER'))
+REDIS_PORT = int(str(os.getenv('REDIS_PORT')))
+
+r = redis.Redis(host=REDIS_ADDRESS, port=REDIS_PORT, db=0)
 
 init_sql = """
 CREATE TABLE IF NOT EXISTS shorts (
@@ -34,31 +40,52 @@ CREATE TABLE IF NOT EXISTS shorts (
 
 sqlcon = sqlite3.connect(DB_FILE)
 sqlcon.execute(init_sql)
+sqlcon.close()
 
 app = Flask(__name__)
 
 @app.errorhandler(404)
 def pagenotfound(error):
-    return render_template('wrong.html', code="404", message="Not Found", details="The following link maybe be broken"), 404
+    return render_template('wrong.html', code="404", message=error, details="The following link maybe be broken"), 404
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/<link>')
-def getLink(link):
-    sqlcon = sqlite3.connect(DB_FILE)
-    cursor = sqlcon.cursor()
+def get_url_from_db(link: str) -> str | None:
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
     cursor.execute("SELECT link FROM shorts WHERE path=?", (link,))
     data = cursor.fetchone()
-    if data is None:
-        return pagenotfound(404)
     cursor.close()
-    sqlcon.close()
-    return redirect(data[0], code=302)
+    conn.close()
+    return data[0] if data else None
+
+def get_url(link: str) -> str | None:
+    key = f'url:{link}'
+
+    cached = r.get(key)
+    if cached and type(cached) == bytes:
+        return cached.decode()
+
+    url = get_url_from_db(link)
+    if url != None:
+        r.setex(key, 600, url)
+    return url
+
+
+@app.route('/<link>')
+def getLink(link):
+    redirect_url = get_url(link)
+    if redirect_url == None:
+        return pagenotfound(404)
+    
+    return redirect(redirect_url, code=302)
 
 @app.route('/newlink', methods=["POST"])
 def addLink():
+    if request.json == None:
+        return make_response({'status': 'failed', 'message': 'Invalid request'}, 400)
     if 'url' not in request.json or not request.json['url']:
         return make_response({'status': 'failed', 'message': 'URL is empty'}, 500)
     sqlcon = sqlite3.connect(DB_FILE)
@@ -75,7 +102,4 @@ def addLink():
     sqlcon.close()
     return make_response({'status': 'success', 'shortUrl': path}, 200)
 
-try:
-    app.run(ssl_context=(TLS_CERT, TLS_KEY), host=ADDRESS_RESOLUTION, port=int(SERVER_PORT))
-except:
-    print('TLS data missing')
+app.run(host=ADDRESS_RESOLUTION, port=SERVER_PORT)
