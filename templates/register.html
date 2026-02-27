@@ -1,0 +1,84 @@
+{{ template "header" . }}
+<div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 max-w-lg w-full space-y-6">
+  <h1 class="text-3xl font-bold text-center">Create Account</h1>
+  <p class="text-sm text-center text-gray-600 dark:text-gray-300">
+    Join to start shortening URLs with <span class="font-semibold">automatic expiry management</span>.
+  </p>
+
+  <div class="space-y-4">
+    <div class="space-y-1">
+      <label for="username" class="text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
+      <input
+        id="username"
+        type="text"
+        placeholder="Choose a username"
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
+        required
+      />
+    </div>
+
+    <div class="space-y-1">
+      <label for="email" class="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+      <input
+        id="email"
+        type="email"
+        placeholder="you@example.com"
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
+        required
+      />
+    </div>
+
+    <div class="space-y-1">
+      <label for="password" class="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Create a password"
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
+        required
+      />
+    </div>
+
+    <div class="space-y-1">
+      <label for="confirmPassword" class="text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
+      <input
+        id="confirmPassword"
+        type="password"
+        placeholder="Repeat your password"
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
+        required
+      />
+      <p id="passwordError" class="hidden text-xs text-red-500 pt-1">Passwords do not match.</p>
+    </div>
+
+    <div class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+      <input id="terms" type="checkbox" class="mt-0.5 rounded border-gray-300 dark:border-gray-600 accent-blue-600" />
+      <label for="terms">
+        I agree to the
+        <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">Terms of Service</a>
+        and
+        <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">Privacy Policy</a>
+      </label>
+    </div>
+
+    <button
+      onclick="handleRegister()"
+      class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+    >
+      Create Account
+    </button>
+
+    <!-- Notification -->
+    <div id="registerNotification" class="hidden relative">
+      <div class="absolute -top-14 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in-out whitespace-nowrap">
+        Account created successfully!
+      </div>
+    </div>
+  </div>
+
+  <p class="text-sm text-center text-gray-600 dark:text-gray-300">
+    Already have an account?
+    <a href="/login" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Sign in</a>
+  </p>
+</div>
+{{ template "footer" . }}

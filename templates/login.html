@@ -1,0 +1,58 @@
+{{ template "header" . }}
+<div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 max-w-lg w-full space-y-6">
+  <h1 class="text-3xl font-bold text-center">Welcome Back</h1>
+  <p class="text-sm text-center text-gray-600 dark:text-gray-300">
+    Sign in to manage and track your <span class="font-semibold">shortened URLs</span>.
+  </p>
+
+  <div class="space-y-4">
+    <div class="space-y-1">
+      <label for="email" class="text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+      <input
+        id="email"
+        type="email"
+        placeholder="you@example.com"
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
+        required
+      />
+    </div>
+
+    <div class="space-y-1">
+      <label for="password" class="text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Enter your password"
+        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
+        required
+      />
+    </div>
+
+    <div class="flex items-center justify-between text-sm">
+      <label class="flex items-center gap-2 text-gray-600 dark:text-gray-300 cursor-pointer">
+        <input type="checkbox" class="rounded border-gray-300 dark:border-gray-600 accent-blue-600" />
+        Remember me
+      </label>
+    </div>
+
+    <button
+      onclick="handleLogin()"
+      class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+    >
+      Sign In
+    </button>
+
+    <!-- Notification -->
+    <div id="loginNotification" class="hidden relative">
+      <div class="absolute -top-14 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in-out whitespace-nowrap">
+        Logged in successfully!
+      </div>
+    </div>
+  </div>
+
+  <p class="text-sm text-center text-gray-600 dark:text-gray-300">
+    Don't have an account?
+    <a href="/register" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Create one</a>
+  </p>
+</div>
+{{ template "footer" . }}
