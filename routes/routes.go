@@ -9,6 +9,7 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/", controllers.IndexPage)
 	r.GET("/login", controllers.LoginPage)
 	r.GET("/register", controllers.RegisterPage)
+	r.GET("/:url", controllers.GetLongUrl)
 
 	api := r.Group("/api")
 	{
