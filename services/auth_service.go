@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
+	"github.com/lbodlev888/url_shortener/models"
 	"golang.org/x/crypto/argon2"
 )
 
@@ -14,6 +15,13 @@ const (
 	threads uint8 = 4
 	hashLen uint32 = 32
 )
+
+var key []byte
+
+func init() {
+	key = make([]byte, 32)
+	rand.Read(key)
+}
 
 func deriveKey(password []byte) (hash, salt string) {
 	saltB := make([]byte, 16)
@@ -30,4 +38,11 @@ func deriveKey(password []byte) (hash, salt string) {
 func checkKey(plainPassword, hashedPassword, salt []byte) bool {
 	hashB := argon2.Key(plainPassword, salt, timeCost, memoryCost, threads, hashLen)
 	return bytes.Equal(hashB, hashedPassword)
+}
+
+func ValidateToken(token string) bool {
+	parsed, err := models.ParseToken(token)
+	if err != nil { return false }
+
+	return parsed.Validate(key)
 }
