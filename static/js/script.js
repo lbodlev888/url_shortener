@@ -52,7 +52,8 @@ const handleLogin = async() => {
 	});
 	if (resp.ok) {
 		const res = await resp.json();
-		console.log(res);
+		document.cookie = `token=${res.token}`;
+		window.location = "/";
 	} else if (resp.status === 403) {
 		alert("Invalid credentials");
 	} else {
