@@ -16,6 +16,10 @@ type Token struct {
 	signature []byte `json:"-"`
 }
 
+func NewToken(username string) *Token {
+	return &Token{Username: username}
+}
+
 func (t *Token) serialize() []byte {
 	data, _ := json.Marshal(t)
 	return data
