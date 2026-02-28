@@ -94,7 +94,10 @@ const handleRegister = async() => {
 	});
 	if(resp.ok) {
 		const res = await resp.json();
-		console.log(res);
+		if (res.status === 'ok') {
+			alert("Register successfull. Proceed to login");
+			window.location = "/login";
+		}
 	} else {
 		alert("Something went wrong :(");
 	}
