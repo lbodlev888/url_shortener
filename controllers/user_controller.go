@@ -17,19 +17,16 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
-	status, err := services.LoginUser(user)
-	if err != nil {
+	token, err := services.LoginUser(user)
+	if err != nil && err.Error() == "invalid_creds" {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Invalid credentials"})
+		return
+	} else if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		fmt.Println(err)
 		return
 	}
 
-	if !status {
-		c.JSON(http.StatusForbidden, gin.H{"error": "invalid credentials"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
 func RegisterUser(c *gin.Context) {
