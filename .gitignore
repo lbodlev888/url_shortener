@@ -1,4 +1,2 @@
-.venv
-database.db
 .env
-*.db
+postgres_data/
