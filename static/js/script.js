@@ -1,4 +1,14 @@
-const generateShortUrl = () => {
+const submitNewUrl = async() => {
+	const newUrl = document.getElementById('newUrl').value;
+
+	const resp = await fetch('/api/short', {
+		method: "POST",
+		body: JSON.stringify({"url": newUrl})
+	});
+	const res = await resp.json();
+	console.log(res);
+	closeModal();
+	location.reload();
 }
 
 const copyToClipboard = () => {
@@ -43,7 +53,7 @@ const setTheme = (mode) => {
 };
 
 const handleLogin = async() => {
-	const login = document.getElementById("email").value;
+	const login = document.getElementById("username").value;
 	const password = document.getElementById("password").value;
 
 	const resp = await fetch("/api/login", {
@@ -88,6 +98,11 @@ const handleRegister = async() => {
 	} else {
 		alert("Something went wrong :(");
 	}
+};
+
+const logout = () => {
+	document.cookie = "token=;Expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+	window.location = "/login";
 };
 
 // Apply saved or system theme

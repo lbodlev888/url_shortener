@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
+	"fmt"
 
 	"github.com/lbodlev888/url_shortener/models"
 	"golang.org/x/crypto/argon2"
@@ -17,8 +18,10 @@ const (
 )
 
 var key []byte
+var path []byte
 
 func init() {
+	path = make([]byte, 3)
 	key = make([]byte, 32)
 	rand.Read(key)
 }
@@ -42,7 +45,10 @@ func checkKey(plainPassword, hashedPassword, salt []byte) bool {
 
 func ValidateToken(token string) bool {
 	parsed, err := models.ParseToken(token)
-	if err != nil { return false }
+	if err != nil {
+		fmt.Printf("could not parse the token: %v\n", err)
+		return false
+	}
 
 	return parsed.Validate(key)
 }

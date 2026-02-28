@@ -17,5 +17,6 @@ func SetupRoutes(r *gin.Engine) {
 		api.POST("/register", controllers.RegisterUser)
 
 		api.POST("/short", controllers.NewShortUrl)
+		api.DELETE("/short/:url", controllers.DeleteShort)
 	}
 }
