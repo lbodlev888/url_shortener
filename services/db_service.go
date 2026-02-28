@@ -31,8 +31,8 @@ func init() {
 
 	db.Exec(`CREATE TABLE users (
 		id serial primary key,
-		username varchar(50) not null,
-		email text not null,
+		username varchar(50) unique not null,
+		email text unique not null,
 		password text not null,
 		salt text not null)`)
 	db.Exec(`CREATE TABLE shorts (
