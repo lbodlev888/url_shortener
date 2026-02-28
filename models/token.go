@@ -33,7 +33,7 @@ func (t *Token) Issue(key []byte) string {
 	h.Write(data)
 	signature := h.Sum(nil)
 
-	return base64.StdEncoding.EncodeToString(data) + "." + base64.StdEncoding.EncodeToString(signature)
+	return base64.RawURLEncoding.EncodeToString(data) + "." + base64.RawURLEncoding.EncodeToString(signature)
 }
 
 func (t *Token) Validate(key []byte) bool {
@@ -53,14 +53,14 @@ func ParseToken(token string) (*Token, error) {
 	var t Token
 	var err error
 
-	data, err := base64.StdEncoding.DecodeString(rawData)
+	data, err := base64.RawURLEncoding.DecodeString(rawData)
 	if err != nil { return nil, fmt.Errorf("Invalid token") }
 
 	if err = json.Unmarshal([]byte(data), &t); err != nil {
 		return nil, fmt.Errorf("Invalid token")
 	}
 
-	t.signature, err = base64.StdEncoding.DecodeString(signature)
+	t.signature, err = base64.RawURLEncoding.DecodeString(signature)
 	if err != nil { return nil, fmt.Errorf("Invalid token") }
 
 	return &t, nil
