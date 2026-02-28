@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"fmt"
+	"os"
 
 	"github.com/lbodlev888/url_shortener/models"
 	"golang.org/x/crypto/argon2"
@@ -17,13 +18,15 @@ const (
 	hashLen uint32 = 32
 )
 
-var key []byte
 var path []byte
+var key []byte
 
 func init() {
+	var err error
 	path = make([]byte, 3)
-	key = make([]byte, 32)
-	rand.Read(key)
+	keyBase64 := os.Getenv("HMAC_SECRET")
+	key, err = base64.StdEncoding.DecodeString(keyBase64)
+	if err != nil { panic(err) }
 }
 
 func deriveKey(password []byte) (hash, salt string) {
