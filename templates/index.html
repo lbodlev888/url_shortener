@@ -22,7 +22,7 @@
       </p>
     </div>
     <button
-      onclick="openModal()"
+      onclick="openModal('addUrlModal')"
       class="flex items-center gap-2 bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
     >
       <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -59,6 +59,21 @@
           <td class="px-5 py-3 text-gray-500 dark:text-gray-400">{{ formatDate .CreatedAt }}</td>
           <td class="px-5 py-3">
             <div class="flex items-center justify-center gap-3">
+			  <button class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition" onclick="displayQrCode('{{ .Path }}')">
+				<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+				<!-- Top-left finder square -->
+				  <rect x="3" y="3" width="7" height="7" rx="1" stroke-linejoin="round"/>
+				  <rect x="5" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
+				  <!-- Top-right finder square -->
+				  <rect x="14" y="3" width="7" height="7" rx="1" stroke-linejoin="round"/>
+				  <rect x="16" y="5" width="3" height="3" fill="currentColor" stroke="none"/>
+				  <!-- Bottom-left finder square -->
+				  <rect x="3" y="14" width="7" height="7" rx="1" stroke-linejoin="round"/>
+				  <rect x="5" y="16" width="3" height="3" fill="currentColor" stroke="none"/>
+				  <!-- Bottom-right data dots -->
+				  <path stroke-linecap="round" stroke-linejoin="round" d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor" stroke="none"/>
+				</svg>
+			  </button>
               <!-- Copy -->
               <button onclick="copyUrl('{{ .Path }}', this)" title="Copy short URL" class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -90,7 +105,7 @@
 </div>
 
 <!-- Add New Modal -->
-<div id="modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+<div id="addUrlModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
   <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 w-full max-w-lg space-y-5">
     <h2 class="text-2xl font-bold">Add New URL</h2>
     <p class="text-sm text-gray-600 dark:text-gray-300">Paste the long URL you want to shorten.</p>
@@ -107,53 +122,49 @@
 
     <div class="flex gap-3 pt-1">
       <button
-        onclick="closeModal()"
+        onclick="closeModal('addUrlModal')"
         class="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
       >
         Cancel
       </button>
       <button
         onclick="submitNewUrl()"
-        class="flex-1 bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
-      >
+        class="flex-1 bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition">
         Generate & Save
       </button>
     </div>
   </div>
 </div>
+
+<div id="qrModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+  <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 w-full max-w-lg space-y-5">
+    <h2 class="text-2xl font-bold">QR Code</h2>
+    <p class="text-sm text-gray-600 dark:text-gray-300">Scan the QR code below to open the URL.</p>
+    <!-- QR Code Display Area -->
+    <div class="flex justify-center py-2">
+      <div id="qrcode"></div>
+    </div>
+    <!-- Optional: show the URL below the QR -->
+    <p id="copied_status" class="hidden text-center text-sm text-green-400">QR copied successfully</p>
+    <div class="flex gap-3 pt-1">
+      <button
+        onclick="closeModal('qrModal')"
+        class="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+      >
+        Close
+      </button>
+	  <button
+        onclick="copyImage()"
+        class="flex-1 bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition">
+        Copy QR
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="copyToast" class="absolute bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in-out hidden pointer-events-none whitespace-nowrap z-50">
   Short URL copied to clipboard!
 </div>
-<script>
-	function openModal()  { document.getElementById('modal').classList.remove('hidden'); }
-    function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-
-	function copyUrl(url, btn) {
-      navigator.clipboard.writeText(window.location.href + url);
-      const toast = document.getElementById('copyToast');
-	  const rect = btn.getBoundingClientRect();
-	  toast.classList.remove('hidden');
-	  toast.style.top  = (rect.top + window.scrollY - toast.offsetHeight - 10) + 'px';
-	  toast.style.left = (rect.left + window.scrollX + rect.width / 2 - toast.offsetWidth / 2) + 'px';
-	  // recalc after paint since offsetWidth is 0 while hidden
-	  requestAnimationFrame(() => {
-	    toast.style.top  = (rect.top + window.scrollY - toast.offsetHeight - 10) + 'px';
-	    toast.style.left = (rect.left + window.scrollX + rect.width / 2 - toast.offsetWidth / 2) + 'px';
-	  });
-	  setTimeout(() => toast.classList.add('hidden'), 2200);
-    }
-
-	const deleteShort = async(path) => {
-		if(!confirm("Are you sure you want to delete the following short url?")) return;
-		const resp = await fetch(`/api/short/${path}`, {
-			method: "DELETE",
-		});
-		if(resp.ok) {
-			const res = await resp.json();
-			if (res.status === 'ok')
-				document.getElementById(path).remove();
-			
-		} else alert('Something went wrong :(');
-	};
-</script>
+<script src="/static/js/index.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 {{ template "footer" . }}
