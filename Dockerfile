@@ -1,6 +1,20 @@
-FROM python:3-alpine
+FROM golang AS builder
 
-WORKDIR /usr/src/app
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
 COPY . .
-RUN pip install -r requirements.txt
-CMD [ "python3", "./app.py" ]
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -tags=nomsgpack -ldflags="-s -w" -o server
+
+
+FROM scratch
+
+WORKDIR /app
+
+COPY templates/ ./templates/
+COPY static/ ./static/
+COPY --from=builder /app/server .
+
+EXPOSE 8080
+ENTRYPOINT ["./server"]

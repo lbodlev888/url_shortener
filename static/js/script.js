@@ -1,29 +1,17 @@
-function generateShortUrl() {
-    const urlInput = document.getElementById('urlInput');
-    const shortUrl = document.getElementById('shortUrl');
-    const resultContainer = document.getElementById('resultContainer');
-    
-    fetch('/newlink', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ url: urlInput.value })
-    }).then(response => response.json())
-    .then(data => {
-        if (data.status && data.status == 'success') {
-            const shortUrlText = data.shortUrl;
-            shortUrl.textContent = `${window.location.origin}/${shortUrlText}`;
-            resultContainer.classList.remove('hidden');
-        } else {
-            alert('Error generating short URL. Message: ' + data.message);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while generating the short URL. Please try again.');
-    });
+const submitNewUrl = async() => {
+	const newUrl = document.getElementById('newUrl').value;
+
+	const resp = await fetch('/api/short', {
+		method: "POST",
+		body: JSON.stringify({"url": newUrl})
+	});
+	const res = await resp.json();
+	console.log(res);
+	closeModal();
+	location.reload();
 }
 
-function copyToClipboard() {
+const copyToClipboard = () => {
     const shortUrlText = document.getElementById('shortUrl').textContent;
     navigator.clipboard.writeText(shortUrlText).then(() => {
     const notification = document.getElementById('copyNotification');
@@ -34,16 +22,16 @@ function copyToClipboard() {
     notification.classList.add('animate-fade-in-out');
 
     setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 2000);
+			notification.classList.add('hidden');
+		}, 2000);
     });
-}
+};
 
 function toggleDropdown() {
     document.getElementById('themeDropdown').classList.toggle('hidden');
 }
 
-function setTheme(mode) {
+const setTheme = (mode) => {
     const html = document.documentElement;
     localStorage.setItem('theme', mode);
     if (mode === 'dark') {
@@ -62,10 +50,66 @@ function setTheme(mode) {
     }
     }
     document.getElementById('themeDropdown').classList.add('hidden');
-}
+};
+
+const handleLogin = async() => {
+	const login = document.getElementById("username").value;
+	const password = document.getElementById("password").value;
+
+	const resp = await fetch("/api/login", {
+		method: "POST",
+		body: JSON.stringify({"user": login, "pass": password})
+	});
+	if (resp.ok) {
+		const res = await resp.json();
+		document.cookie = `token=${res.token}`;
+		window.location = "/";
+	} else if (resp.status === 403) {
+		alert("Invalid credentials");
+	} else {
+		alert("Something failed :(");
+	}
+};
+
+const handleRegister = async() => {
+	const checkBox = document.getElementById("terms");
+	if (!checkBox.checked) {
+		alert("Agree with terms and conditions");
+		return;
+	}
+
+	const username = document.getElementById("username").value;
+	const email = document.getElementById("email").value;
+	const password = document.getElementById("password").value;
+	const confirmedPassword = document.getElementById("confirmPassword").value;
+
+	if (password !== confirmedPassword) {
+		document.getElementById("passwordError").classList.remove("hidden");
+		return;
+	} else document.getElementById("passwordError").classList.add("hidden");
+
+	const resp = await fetch("/api/register", {
+		method: "POST",
+		body: JSON.stringify({"user": username, "email": email, "pass": password})
+	});
+	if(resp.ok) {
+		const res = await resp.json();
+		if (res.status === 'ok') {
+			alert("Register successfull. Proceed to login");
+			window.location = "/login";
+		}
+	} else {
+		alert("Something went wrong :(");
+	}
+};
+
+const logout = () => {
+	document.cookie = "token=;Expires=Thu, 01 Jan 1970 00:00:01 GMT;"
+	window.location = "/login";
+};
 
 // Apply saved or system theme
-(function () {
-    const savedTheme = localStorage.getItem('theme') || 'system';
+(() => {
+	const savedTheme = localStorage.getItem('theme') || 'system';
     setTheme(savedTheme);
 })();

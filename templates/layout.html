@@ -1,0 +1,27 @@
+{{ define "header" }}
+<!DOCTYPE html>
+<html lang="en" class="transition-colors">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ .title }}</title>
+  <link rel="stylesheet" href="/static/css/styles.css">
+  <link rel="icon" href="/static/favicon.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+    }
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center p-4 relative">
+  <div class="absolute top-4 right-4">
+  {{ template "theme" . }}
+  </div>
+{{ end }}
+
+{{ define "footer" }}
+<script src="/static/js/script.js"></script>
+</body>
+</html>
+{{ end }}

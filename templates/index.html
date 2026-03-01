@@ -1,60 +1,159 @@
-<!DOCTYPE html>
-<html lang="en" class="transition-colors">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>URL Shortener</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-    }
-  </script>
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center p-4 relative">
-  <div class="absolute top-4 right-4">
-    {% include "partials/theme_dropdown.html" %}
+{{ template "header" . }}
+<div class="absolute top-4 left-4">
+  <button
+	onclick="logout()"
+    class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-gray-700 shadow-md hover:shadow-lg transition text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 text-sm font-medium hover:text-red-500 dark:hover:text-red-400"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1"/>
+    </svg>
+    Logout
+  </button>
+</div>
+
+<div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 w-full max-w-5xl space-y-6">
+
+  <!-- Header row -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold">My URLs</h1>
+      <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">
+        Links are <span class="font-semibold">automatically deleted</span> after 6 months of no access.
+      </p>
+    </div>
+    <button
+      onclick="openModal()"
+      class="flex items-center gap-2 bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+      </svg>
+      Add New
+    </button>
   </div>
 
-  <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 max-w-lg w-full space-y-6">
-    <h1 class="text-3xl font-bold text-center">URL Shortener</h1>
-    <p class="text-sm text-center text-gray-600 dark:text-gray-300">
-      Note: Your shortened links will be <span class="font-semibold">automatically deleted</span> after 6 months of no access.
-    </p>
-    <div class="space-y-4">
+  <!-- Table -->
+  <div class="overflow-x-auto rounded-xl border border-gray-200 dark:border-gray-700">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-gray-700/60 text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider">
+          <th class="px-5 py-3 text-left font-semibold">Original URL</th>
+          <th class="px-5 py-3 text-left font-semibold">Short URL</th>
+          <th class="px-5 py-3 text-left font-semibold">Clicks</th>
+          <th class="px-5 py-3 text-left font-semibold">Created</th>
+          <th class="px-5 py-3 text-center font-semibold">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+		{{ range .shorts }}
+		<tr id="{{ .Path }}" class="hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors">
+          <td class="px-5 py-3 max-w-xs">
+			<span class="block truncate text-gray-700 dark:text-gray-300" title="{{ .Url }}">
+			  {{ .Url }}
+			</span>
+          </td>
+          <td class="px-5 py-3">
+			<a href="/{{ .Path }}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">{{ .Path }}</a>
+          </td>
+			<td class="px-5 py-3 text-gray-700 dark:text-gray-300">{{ .Clicks }}</td>
+          <td class="px-5 py-3 text-gray-500 dark:text-gray-400">{{ formatDate .CreatedAt }}</td>
+          <td class="px-5 py-3">
+            <div class="flex items-center justify-center gap-3">
+              <!-- Copy -->
+              <button onclick="copyUrl('{{ .Path }}', this)" title="Copy short URL" class="text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-4 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+              </button>
+              <!-- Delete -->
+              <button onclick="deleteShort('{{ .Path }}')" title="Delete" class="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0a1 1 0 00-1-1h-4a1 1 0 00-1 1m-4 0h10"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+		{{ end }}
+        <!-- /Template row -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty state (shown when table has no rows — toggle with JS if needed) -->
+  <div id="emptyState" class="hidden text-center py-12 text-gray-400 dark:text-gray-500">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 mx-auto mb-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 010 5.656M10.172 10.172a4 4 0 000 5.656m9.9-9.9a9 9 0 11-12.728 0M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+    </svg>
+    <p class="text-sm">No shortened URLs yet. Click <span class="font-semibold">Add New</span> to get started.</p>
+  </div>
+</div>
+
+<!-- Add New Modal -->
+<div id="modal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+  <div class="bg-white dark:bg-gray-800 shadow-2xl rounded-2xl p-8 w-full max-w-lg space-y-5">
+    <h2 class="text-2xl font-bold">Add New URL</h2>
+    <p class="text-sm text-gray-600 dark:text-gray-300">Paste the long URL you want to shorten.</p>
+
+    <div class="space-y-1">
+      <label for="newUrl" class="text-sm font-medium text-gray-700 dark:text-gray-300">URL</label>
       <input
-        id="urlInput"
+        id="newUrl"
         type="url"
-        placeholder="Enter your URL here..."
+        placeholder="https://example.com/your/long/url"
         class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:placeholder-gray-400"
-        required
       />
+    </div>
+
+    <div class="flex gap-3 pt-1">
       <button
-        onclick="generateShortUrl()"
-        class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+        onclick="closeModal()"
+        class="flex-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition"
       >
-        Generate Short URL
+        Cancel
       </button>
-      <div id="resultContainer" class="hidden relative">
-        <p class="text-sm text-gray-600 dark:text-gray-300 mb-1">Your shortened URL:</p>
-        <div class="bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 flex items-center justify-between">
-          <span id="shortUrl" class="text-blue-600 dark:text-blue-400 break-all"></span>
-          <button
-            onclick="copyToClipboard()"
-            class="ml-2 text-sm text-blue-500 dark:text-blue-400 hover:underline"
-          >
-            Copy
-          </button>
-        </div>
-        <!-- Floating notification near copy button -->
-        <div id="copyNotification" class="hidden absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in-out">
-          Short URL copied to clipboard!
-        </div>
-      </div>
+      <button
+        onclick="submitNewUrl()"
+        class="flex-1 bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700 transition"
+      >
+        Generate & Save
+      </button>
     </div>
   </div>
-  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
-</html>
+</div>
+<div id="copyToast" class="absolute bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg text-sm animate-fade-in-out hidden pointer-events-none whitespace-nowrap z-50">
+  Short URL copied to clipboard!
+</div>
+<script>
+	function openModal()  { document.getElementById('modal').classList.remove('hidden'); }
+    function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+	function copyUrl(url, btn) {
+      navigator.clipboard.writeText(window.location.href + url);
+      const toast = document.getElementById('copyToast');
+	  const rect = btn.getBoundingClientRect();
+	  toast.classList.remove('hidden');
+	  toast.style.top  = (rect.top + window.scrollY - toast.offsetHeight - 10) + 'px';
+	  toast.style.left = (rect.left + window.scrollX + rect.width / 2 - toast.offsetWidth / 2) + 'px';
+	  // recalc after paint since offsetWidth is 0 while hidden
+	  requestAnimationFrame(() => {
+	    toast.style.top  = (rect.top + window.scrollY - toast.offsetHeight - 10) + 'px';
+	    toast.style.left = (rect.left + window.scrollX + rect.width / 2 - toast.offsetWidth / 2) + 'px';
+	  });
+	  setTimeout(() => toast.classList.add('hidden'), 2200);
+    }
+
+	const deleteShort = async(path) => {
+		if(!confirm("Are you sure you want to delete the following short url?")) return;
+		const resp = await fetch(`/api/short/${path}`, {
+			method: "DELETE",
+		});
+		if(resp.ok) {
+			const res = await resp.json();
+			if (res.status === 'ok')
+				document.getElementById(path).remove();
+			
+		} else alert('Something went wrong :(');
+	};
+</script>
+{{ template "footer" . }}
