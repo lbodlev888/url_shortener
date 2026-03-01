@@ -19,15 +19,25 @@ func init() {
 	pass := os.Getenv("DB_PASS")
 	dbname := os.Getenv("DB_NAME")
 
-	if host == "" { host = "localhost" }
-	if port == "" { port = "5432" }
-	if user == "" { user = "postgres" }
-	if dbname == "" { dbname = "shorts" }
+	if host == "" {
+		host = "localhost"
+	}
+	if port == "" {
+		port = "5432"
+	}
+	if user == "" {
+		user = "postgres"
+	}
+	if dbname == "" {
+		dbname = "shorts"
+	}
 
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname)
 
 	db, err = sqlx.Connect("postgres", connStr)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 
 	db.Exec(`CREATE TABLE users (
 		id serial primary key,

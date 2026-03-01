@@ -13,13 +13,17 @@ func init() {
 	ctx := context.Background()
 
 	redisUrl := os.Getenv("REDIS_URL")
-	if redisUrl == "" { redisUrl = "localhost:6379" }
+	if redisUrl == "" {
+		redisUrl = "localhost:6379"
+	}
 
 	rdb = redis.NewClient(&redis.Options{
-		Addr: redisUrl,
+		Addr:     redisUrl,
 		Password: "",
-		DB: 0,
+		DB:       0,
 	})
 	_, err := rdb.Ping(ctx).Result()
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 }

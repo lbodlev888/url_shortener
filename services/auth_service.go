@@ -12,10 +12,10 @@ import (
 )
 
 const (
-	timeCost uint32 = 3
-	memoryCost uint32 = 64*1024
-	threads uint8 = 4
-	hashLen uint32 = 32
+	timeCost   uint32 = 3
+	memoryCost uint32 = 64 * 1024
+	threads    uint8  = 4
+	hashLen    uint32 = 32
 )
 
 var path []byte
@@ -25,10 +25,14 @@ func init() {
 	var err error
 	path = make([]byte, 3)
 	keyBase64 := os.Getenv("JWT_SECRET")
-	if keyBase64 == "" { rand.Read(key) }
+	if keyBase64 == "" {
+		rand.Read(key)
+	}
 
 	key, err = base64.StdEncoding.DecodeString(keyBase64)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 }
 
 func deriveKey(password []byte) (hash, salt string) {

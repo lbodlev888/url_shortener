@@ -17,13 +17,19 @@ func RegisterUser(user models.User) error {
 func LoginUser(user models.User) (string, error) {
 	plainPassword := user.Password
 	err := db.Get(&user, "SELECT password, salt FROM users WHERE username=$1", user.Username)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 
 	saltB, err := base64.StdEncoding.DecodeString(user.Salt)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 
 	hashB, err := base64.StdEncoding.DecodeString(user.Password)
-	if err != nil { return "", err }
+	if err != nil {
+		return "", err
+	}
 
 	if checkKey([]byte(plainPassword), hashB, saltB) {
 		t := models.NewToken(user.Username)
