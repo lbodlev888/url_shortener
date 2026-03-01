@@ -1,3 +1,5 @@
+let qrcode = null;
+
 const openModal = (modalId) => { document.getElementById(modalId).classList.remove('hidden'); }
 const closeModal = (modalId) => { document.getElementById(modalId).classList.add('hidden'); }
 
@@ -30,8 +32,11 @@ const deleteShort = async(path) => {
 };
 
 const displayQrCode = (path) => {
-	document.getElementById('qrcode').innerHTML = '';
-	new QRCode(document.getElementById('qrcode'), window.location.href+path);
+	if (qrcode === null) {
+		qrcode = new QRCode("qrcode");
+	}
+	qrcode.clear();
+	qrcode.makeCode(window.location.href + path);
 	openModal('qrModal');
 };
 
