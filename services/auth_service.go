@@ -24,7 +24,9 @@ var key []byte
 func init() {
 	var err error
 	path = make([]byte, 3)
-	keyBase64 := os.Getenv("HMAC_SECRET")
+	keyBase64 := os.Getenv("JWT_SECRET")
+	if keyBase64 == "" { rand.Read(key) }
+
 	key, err = base64.StdEncoding.DecodeString(keyBase64)
 	if err != nil { panic(err) }
 }
