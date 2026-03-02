@@ -42,7 +42,7 @@ func GetLongUrl(path string) (string, error) {
 		return val, nil
 	}
 
-	err = db.Get(&url, "SELECT url FROM shorts WHERE path=$1", path)
+	err = db.Get(&url, "UPDATE shorts SET clicks = clicks + 1 WHERE path = $1 RETURNING url", path)
 	if err != nil {
 		return "", err
 	}
@@ -86,8 +86,4 @@ func DeleteShort(raw_token, path string) error {
 
 	_, err := db.Exec("DELETE FROM shorts WHERE path=$1", path)
 	return err
-}
-
-func Increment(path string) {
-	db.Exec("UPDATE shorts SET clicks=clicks+1 WHERE path=$1", path)
 }
