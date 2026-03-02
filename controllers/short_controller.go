@@ -46,7 +46,6 @@ func GetLongUrl(c *gin.Context) {
 		c.HTML(404, "wrong.html", gin.H{"title": "not found"})
 		return
 	}
-	services.Increment(url)
 
 	c.Redirect(http.StatusTemporaryRedirect, link)
 }
