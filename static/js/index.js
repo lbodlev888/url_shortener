@@ -54,21 +54,33 @@ const submitNewUrl = async() => {
 }
 
 const copyImage = () => {
-	const canvas = document.querySelector(`#qrcode canvas`);
+    const canvas = document.querySelector(`#qrcode canvas`);
+    const padding = 10;
 
-	canvas.toBlob(async (blob) => {
-		try {
-			await navigator.clipboard.write([
-				new ClipboardItem({ 'image/png': blob })
-			]);
-			document.getElementById('copied_status').classList.remove('hidden');
-			setTimeout(() => {
-				document.getElementById('copied_status').classList.add('hidden');
-			}, 4000);
-		} catch (err) {
-			console.error('Failed to copy QR:', err);
-		}
-	});
+    const padded = document.createElement('canvas');
+    padded.width  = canvas.width  + padding * 2;
+    padded.height = canvas.height + padding * 2;
+
+    const ctx = padded.getContext('2d');
+
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, padded.width, padded.height);
+
+    ctx.drawImage(canvas, padding, padding);
+
+    padded.toBlob(async (blob) => {
+        try {
+            await navigator.clipboard.write([
+                new ClipboardItem({ 'image/png': blob })
+            ]);
+            document.getElementById('copied_status').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('copied_status').classList.add('hidden');
+            }, 4000);
+        } catch (err) {
+            console.error('Failed to copy QR:', err);
+        }
+    });
 };
 
 const logout = () => {
