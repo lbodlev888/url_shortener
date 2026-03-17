@@ -15,13 +15,13 @@ func IndexPage(c *gin.Context) {
 		return
 	}
 
-	if !services.ValidateToken(raw_token) {
-		fmt.Println("invalid token")
+	token, status := services.ValidateToken(raw_token)
+	if !status {
 		c.Redirect(http.StatusTemporaryRedirect, "/login")
 		return
 	}
 
-	shorts, err := services.GetAllShorts(raw_token)
+	shorts, err := services.GetAllShorts(token)
 	if err != nil {
 		fmt.Println(err)
 		c.HTML(http.StatusOK, "index.html", gin.H{"title": "Home"})
