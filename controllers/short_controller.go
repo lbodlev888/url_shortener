@@ -14,7 +14,8 @@ func NewShortUrl(c *gin.Context) {
 		return
 	}
 
-	if !services.ValidateToken(raw_token) {
+	token, status := services.ValidateToken(raw_token)
+	if !status {
 		c.Redirect(http.StatusTemporaryRedirect, "/login")
 		return
 	}
@@ -29,7 +30,7 @@ func NewShortUrl(c *gin.Context) {
 		return
 	}
 
-	err = services.NewUrl(raw_token, req.Url, c.ClientIP())
+	err = services.NewUrl(token, req.Url, c.ClientIP())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -57,14 +58,15 @@ func DeleteShort(c *gin.Context) {
 		return
 	}
 
-	if !services.ValidateToken(raw_token) {
+	token, status := services.ValidateToken(raw_token)
+	if !status {
 		c.Redirect(http.StatusTemporaryRedirect, "/login")
 		return
 	}
 
 	url := c.Param("url")
 
-	err = services.DeleteShort(raw_token, url)
+	err = services.DeleteShort(token, url)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

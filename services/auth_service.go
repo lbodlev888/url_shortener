@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/base64"
-	"fmt"
 	"os"
 
 	"github.com/lbodlev888/url_shortener/models"
@@ -52,12 +51,15 @@ func checkKey(plainPassword, hashedPassword, salt []byte) bool {
 	return bytes.Equal(hashB, hashedPassword)
 }
 
-func ValidateToken(token string) bool {
+func ValidateToken(token string) (*models.Token, bool) {
 	parsed, err := models.ParseToken(token)
 	if err != nil {
-		fmt.Printf("could not parse the token: %v\n", err)
-		return false
+		return nil, false
 	}
 
-	return parsed.Validate(key)
+	if !parsed.Validate(key) {
+		return nil, false
+	}
+
+	return parsed, true
 }

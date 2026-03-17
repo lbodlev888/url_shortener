@@ -12,7 +12,7 @@ import (
 	"github.com/lbodlev888/url_shortener/models"
 )
 
-func NewUrl(raw_token, url, ipaddress string) error {
+func NewUrl(token *models.Token, url, ipaddress string) error {
 	status, err := testURL(url)
 	if err != nil {
 		return err
@@ -21,7 +21,6 @@ func NewUrl(raw_token, url, ipaddress string) error {
 		return fmt.Errorf("Malicious URL detected")
 	}
 
-	token, _ := models.ParseToken(raw_token)
 	userId, err := getUserIdByUsername(token.Username)
 	if err != nil {
 		return err
@@ -61,9 +60,7 @@ func GetLongUrl(path string) (string, error) {
 	return url, nil
 }
 
-func GetAllShorts(raw_token string) ([]models.ShortUrl, error) {
-	token, _ := models.ParseToken(raw_token)
-
+func GetAllShorts(token *models.Token) ([]models.ShortUrl, error) {
 	ctx := context.Background()
 	key := "urls:all:" + token.Username
 	var shorts []models.ShortUrl
@@ -88,11 +85,11 @@ func GetAllShorts(raw_token string) ([]models.ShortUrl, error) {
 	return shorts, err
 }
 
-func DeleteShort(raw_token, path string) error {
-	token, _ := models.ParseToken(raw_token)
+func DeleteShort(token *models.Token, path string) error {
+	//delete from shorts using users where shorts.userid=users.id path='1407bf' and username='admin';
 	ctx := context.Background()
 	rdb.Del(ctx, "urls:all:"+token.Username, "urls:"+path)
 
-	_, err := db.Exec("DELETE FROM shorts WHERE path=$1", path)
+	_, err := db.Exec("DELETE FROM shorts USING users WHERE shorts.userid=users.id AND path=$1", path)
 	return err
 }
