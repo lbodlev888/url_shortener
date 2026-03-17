@@ -47,8 +47,10 @@ const submitNewUrl = async() => {
 		method: "POST",
 		body: JSON.stringify({"url": newUrl})
 	});
-	if (!resp.ok)
-		alert('Something failed :(');
+	if (!resp.ok) {
+		const result = await resp.json();
+		alert(result.error);
+	}
 	closeModal('addUrlModal');
 	location.reload();
 }

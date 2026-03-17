@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
@@ -12,6 +13,14 @@ import (
 )
 
 func NewUrl(raw_token, url, ipaddress string) error {
+	status, err := testURL(url)
+	if err != nil {
+		return err
+	}
+	if !status {
+		return fmt.Errorf("Malicious URL detected")
+	}
+
 	token, _ := models.ParseToken(raw_token)
 	userId, err := getUserIdByUsername(token.Username)
 	if err != nil {
