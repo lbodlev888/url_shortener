@@ -26,16 +26,20 @@ func testURL(url string) (bool, error) {
 	}
 
 	resp, err := client.R().SetFormData(map[string]string{"url": url}).SetResult(&scanResult).Post("/urls")
-	if err != nil { return false, fmt.Errorf("Failed to request scan: %w", err) }
-	if resp.IsError() { return false, fmt.Errorf("Failed to request scan: %s (body: %s)", resp.Status(), resp.String()) }
+	if err != nil {
+		return false, fmt.Errorf("Failed to request scan: %w", err)
+	}
+	if resp.IsError() {
+		return false, fmt.Errorf("Failed to request scan: %s (body: %s)", resp.Status(), resp.String())
+	}
 
 	var report struct {
 		Data struct {
 			Attributes struct {
 				Stats struct {
 					Undetected int `json:"undetected"`
-					Harmless int `json:"harmless"`
-					Malicious int `json:"malicious"`
+					Harmless   int `json:"harmless"`
+					Malicious  int `json:"malicious"`
 					Suspicious int `json:"suspicious"`
 				} `json:"stats"`
 			} `json:"attributes"`
@@ -43,12 +47,18 @@ func testURL(url string) (bool, error) {
 	}
 
 	resp, err = client.R().SetResult(&report).Get("/analyses/" + scanResult.Data.Id)
-	if err != nil { return false, err }
-	if resp.IsError() { return false, fmt.Errorf("report request failed: %s (body: %s)", resp.Status(), resp.String()) }
+	if err != nil {
+		return false, err
+	}
+	if resp.IsError() {
+		return false, fmt.Errorf("report request failed: %s (body: %s)", resp.Status(), resp.String())
+	}
 
 	s := report.Data.Attributes.Stats
 
-	if s.Malicious > 0 || s.Suspicious > 0 { return false, fmt.Errorf("Malicious URL detected") }
+	if s.Malicious > 0 || s.Suspicious > 0 {
+		return false, fmt.Errorf("Malicious URL detected")
+	}
 
 	return true, nil
 }
