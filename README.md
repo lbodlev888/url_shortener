@@ -1,4 +1,8 @@
 # URL Shortener
+[![Docker Image CI/CD](https://github.com/lbodlev888/url_shortener/actions/workflows/docker-image.yml/badge.svg)](https://github.com/lbodlev888/url_shortener/actions/workflows/docker-image.yml)
+[![Go](https://github.com/lbodlev888/url_shortener/actions/workflows/go.yml/badge.svg)](https://github.com/lbodlev888/url_shortener/actions/workflows/go.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lbodlev888/url_shortener)](https://goreportcard.com/report/github.com/lbodlev888/url_shortener)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/lbodlev888/url_shortener/blob/main/LICENSE)
 
 A modern, fast, and secure URL shortening service built with Go and Gin-Gonic. This project features user authentication, a dashboard for managing shortened links, and a theme-able UI.
 
