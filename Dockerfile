@@ -12,6 +12,8 @@ FROM scratch
 
 WORKDIR /app
 
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
 COPY templates/ ./templates/
 COPY static/ ./static/
 COPY --from=builder /app/server .
